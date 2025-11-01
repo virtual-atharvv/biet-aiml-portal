@@ -9,8 +9,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Static admin credentials
-const ADMIN_ID = 'admin_aiml';
-const ADMIN_PASSWORD = 'aiml@123';
+const ADMIN_ID = 'admin_biet';
+const ADMIN_PASSWORD = 'admin@123';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
