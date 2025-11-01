@@ -43,7 +43,7 @@ const AdminLogin = () => {
           <div>
             <CardTitle className="text-2xl font-bold">BIET Portal</CardTitle>
             <CardDescription className="mt-2">
-              Bansal Institute of Engineering and Technology
+              Under
               <br />
               Department of AIML
             </CardDescription>
