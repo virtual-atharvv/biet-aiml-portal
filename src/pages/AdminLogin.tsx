@@ -41,7 +41,7 @@ const AdminLogin = () => {
             <GraduationCap className="w-8 h-8 text-white" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">BIET Admin Portal</CardTitle>
+            <CardTitle className="text-2xl font-bold">BIET Portal</CardTitle>
             <CardDescription className="mt-2">
               Bansal Institute of Engineering and Technology
               <br />
