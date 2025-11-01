@@ -1,0 +1,10 @@
+project_id = "qkzlceoftotmtwvdtzsq"
+
+[functions.assignment-upload]
+verify_jwt = false
+
+[functions.attendance-update]
+verify_jwt = false
+
+[functions.grade-publish]
+verify_jwt = false
