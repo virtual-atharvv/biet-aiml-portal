@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -6,32 +6,70 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { GraduationCap, Lock, User } from 'lucide-react';
+import { GraduationCap, Lock, User, Loader2 } from 'lucide-react';
 
 const AdminLogin = () => {
-  const [adminId, setAdminId] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const { signIn, user, userRole, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Redirect authenticated users to their dashboard
+    if (!loading && user && userRole) {
+      switch (userRole) {
+        case 'admin':
+          navigate('/admin');
+          break;
+        case 'teacher':
+          navigate('/teacher');
+          break;
+        case 'student':
+          navigate('/student');
+          break;
+      }
+    }
+  }, [user, userRole, loading, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    if (login(adminId, password)) {
-      toast({
-        title: 'Login Successful',
-        description: 'Welcome to BIET Admin Dashboard',
-      });
-      navigate('/admin');
-    } else {
+    try {
+      const { error } = await signIn(username, password);
+      
+      if (error) {
+        toast({
+          title: 'Login Failed',
+          description: error.message || 'Invalid credentials. Please try again.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Login Successful',
+          description: 'Welcome to BIET Portal',
+        });
+      }
+    } catch (error) {
       toast({
         title: 'Login Failed',
-        description: 'Invalid admin credentials. Please try again.',
+        description: 'An unexpected error occurred.',
         variant: 'destructive',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4">
@@ -52,19 +90,23 @@ const AdminLogin = () => {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="adminId">Admin ID</Label>
+              <Label htmlFor="username">Username</Label>
               <div className="relative">
                 <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="adminId"
+                  id="username"
                   type="text"
-                  placeholder="Enter admin ID"
-                  value={adminId}
-                  onChange={(e) => setAdminId(e.target.value)}
+                  placeholder="Enter username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="pl-10"
                   required
+                  disabled={isLoading}
                 />
               </div>
+              <p className="text-xs text-muted-foreground">
+                Use: admin_aiml (admin), or teacher/student username
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -78,11 +120,23 @@ const AdminLogin = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
-            <Button type="submit" className="w-full bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 transition-opacity">
-              Sign In
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 transition-opacity"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                'Sign In'
+              )}
             </Button>
           </form>
         </CardContent>

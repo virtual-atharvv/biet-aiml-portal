@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRole } from '@/hooks/useRole';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { GraduationCap, LogOut } from 'lucide-react';
+import { GraduationCap, LogOut, Loader2 } from 'lucide-react';
 import StudentsManager from '@/components/admin/StudentsManager';
 import TeachersManager from '@/components/admin/TeachersManager';
 import MarksManager from '@/components/admin/MarksManager';
@@ -11,21 +12,35 @@ import AttendanceManager from '@/components/admin/AttendanceManager';
 import AnnouncementsManager from '@/components/admin/AnnouncementsManager';
 
 const AdminDashboard = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { signOut, user, loading: authLoading } = useAuth();
+  const { isAdmin, loading: roleLoading } = useRole();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('students');
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
+    if (!authLoading && !roleLoading) {
+      if (!user) {
+        navigate('/login');
+      } else if (!isAdmin) {
+        navigate('/'); // Redirect non-admins
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [user, isAdmin, authLoading, roleLoading, navigate]);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     navigate('/login');
   };
 
-  if (!isAuthenticated) {
+  if (authLoading || roleLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
     return null;
   }
 

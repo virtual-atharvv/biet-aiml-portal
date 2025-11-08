@@ -8,3 +8,12 @@ verify_jwt = false
 
 [functions.grade-publish]
 verify_jwt = false
+
+[functions.create-admin]
+verify_jwt = false
+
+[functions.create-teacher]
+verify_jwt = true
+
+[functions.create-student]
+verify_jwt = true
